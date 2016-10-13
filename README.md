@@ -6,7 +6,7 @@ and stuff, but nothing complicated.
 
 ## Made with:
 * [Python 3.5.1](https://www.python.org/downloads/)
-* [PyGame](http://pygame.org/download.shtml)
+* [PyGame](http://pygame.org/download.shtml) *I use pygame-1.9.2a0-cp35-none-win_amd64.whl; it might not be listed*
 * [Pycharm Community Edition](https://www.jetbrains.com/pycharm/download/#section=windows)
 
 
