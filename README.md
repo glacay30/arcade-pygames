@@ -1,15 +1,20 @@
-# games
-Different games made in Python with Pygame
+# Introduction
+This is where I will store my Python Games, updating it as I make more.
 
-Some may be in a different language
+The basic guide here is to only look at folders named after games. They will each have their own resources, like images
+and stuff, but nothing complicated.
 
-## Done:
-* Snake
+## Made with:
+* [Python 3.5.1](https://www.python.org/downloads/)
+* [PyGame](http://pygame.org/download.shtml)
+* [Pycharm Community Edition](https://www.jetbrains.com/pycharm/download/#section=windows)
+
+
+### Done:
 * Pong
-
-## Current:
+* Slither
+### Current:
 * Tetris
-
-## Future:
+### Future:
 * Solitaire
 * Basic platformer
