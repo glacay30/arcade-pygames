@@ -13,8 +13,10 @@ and stuff, but nothing complicated.
 ### Done:
 * Pong
 * Slither
+
 ### Current:
 * Tetris
+
 ### Future:
 * Solitaire
 * Basic platformer
