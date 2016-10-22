@@ -1,5 +1,5 @@
 import pygame
-from assests import *
+from assets import *
 from blocks import *
 
 pygame.init()
@@ -9,9 +9,12 @@ pygame.display.set_caption('Tetris')
 
 fps = 60
 
+alpha = Block('B_001', window, red, 50, 50, 60, 10)
+
 
 def game_menu():
     menu = True
+    color = 0
 
     while menu:
         for event in pygame.event.get():   # Event handler
@@ -22,9 +25,13 @@ def game_menu():
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     quit()
+                elif event.key == pygame.K_f:
+                    if color == 1:
+                        color = 0
+                    else:
+                        color += 1
         window.fill(black)
-        alpha = Block(window, white, 100, 100, 50, 80)
-        alpha.render()
+        alpha.update()
         pygame.display.update()
         pygame.time.Clock().tick(fps)
 
