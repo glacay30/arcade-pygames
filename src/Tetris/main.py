@@ -1,6 +1,6 @@
 import pygame
 from assets import *
-from blocks import *
+from classes import *
 
 pygame.init()
 
@@ -9,12 +9,13 @@ pygame.display.set_caption('Tetris')
 
 fps = 60
 
-alpha = Block('B_001', window, red, 50, 50, 60, 10)
+grid1 = PlayingField('grid1', 10, 22)
+grid1.make_grid()
+b_001 = Block('b_001', window, red, 50, 50, 60, 10)
 
 
 def game_menu():
     menu = True
-    color = 0
 
     while menu:
         for event in pygame.event.get():   # Event handler
@@ -26,12 +27,12 @@ def game_menu():
                     pygame.quit()
                     quit()
                 elif event.key == pygame.K_f:
-                    if color == 1:
-                        color = 0
+                    if b_001.image == 1:
+                        b_001.image = 0
                     else:
-                        color += 1
-        window.fill(black)
-        alpha.update()
+                        b_001.image += 1
+        window.fill(grey)
+        b_001.render()
         pygame.display.update()
         pygame.time.Clock().tick(fps)
 
