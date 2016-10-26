@@ -1,8 +1,8 @@
 import pygame
-from assets import *
+import assets as a
 
 
-class PlayingField:     # Creates the game-play grid
+class PlayingField(object):  # Creates the game-play grid
     def __init__(self, name, width, height):
         self.name = name
         print("Initialized: " + self.name)
@@ -10,7 +10,7 @@ class PlayingField:     # Creates the game-play grid
         self.height = height
         self.grid = {}
 
-    def make_grid(self):    # makes grid by using a (x, y, z) coord, where z is 0 or 1 to show occupancy
+    def make_grid(self):  # makes grid by using a (x, y, z) coord, where z is 0 or 1 to show occupancy
         count = 0
         for i in range(self.height):
             for j in range(self.width):
@@ -22,32 +22,92 @@ class PlayingField:     # Creates the game-play grid
         return self.grid
 
 
-class Block:    # Main block class that all types will inherit from
-    def __init__(self, name, surface, color, x, y, width, height):
+class Block(object):  # Main block class that all types will inherit from
+    def __init__(self, name, surface):
         self.name = name
         print("Initialized: " + self.name)
         self.surface = surface
-        self.color = color
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.num_count = 0
-        self.num_target = 20
-        self.image = 0
 
-    def render(self):  # basic render to show up on screen; checks for color to display
-        if self.image == 0:
-            pygame.draw.rect(self.surface, self.color, (self.x, self.y, self.width, self.height))
-        elif self.image == 1:
-            pygame.draw.rect(self.surface, blue, (self.x, self.y, self.width, self.height))
 
-    def update(self):  # basic animation that changes back and forth via num_target
-        self.num_count += 1
-        if self.num_count == self.num_target:
-            if self.image == 1:
-                self.image = 0
-            elif self.image == 0:
-                self.image = 1
-            self.num_count = 0
-        self.render()
+class TetraT(Block):
+    def __init__(self, name, surface):  # 0|1|0
+        super().__init__(name, surface)  # 1|1|1
+        self.image = a.red_b
+
+    def render(self, x, y):
+        self.surface.blit(self.image, (x, y - 16))  # top-middle
+        self.surface.blit(self.image, (x - 16, y))  # bottom-left
+        self.surface.blit(self.image, (x, y))  # bottom-middle ----
+        self.surface.blit(self.image, (x + 16, y))  # bottom-right
+
+
+class TetraO(Block):
+    def __init__(self, name, surface):  # 1|1
+        super().__init__(name, surface, )  # 1|1
+        self.image = a.yellow_b
+
+    def render(self, x, y):
+        self.surface.blit(self.image, (x - 16, y - 16))  # top-left
+        self.surface.blit(self.image, (x, y - 16))  # top-right
+        self.surface.blit(self.image, (x - 16, y))  # bottom-left
+        self.surface.blit(self.image, (x, y))  # bottom-right ----
+
+
+class TetraJ(Block):
+    def __init__(self, name, surface):  # 1|0|0
+        super().__init__(name, surface)  # 1|1|1
+        self.image = a.green_b
+
+    def render(self, x, y):
+        self.surface.blit(self.image, (x - 16, y - 16))  # top-left
+        self.surface.blit(self.image, (x - 16, y))  # bottom-left
+        self.surface.blit(self.image, (x, y))  # bottom-middle ----
+        self.surface.blit(self.image, (x + 16, y))  # bottom-right
+
+
+class TetraL(Block):
+    def __init__(self, name, surface):  # 0|0|1
+        super().__init__(name, surface)  # 1|1|1
+        self.image = a.orange_b
+
+    def render(self, x, y):
+        self.surface.blit(self.image, (x + 16, y - 16))  # top-right
+        self.surface.blit(self.image, (x - 16, y))  # bottom-left
+        self.surface.blit(self.image, (x, y))  # bottom-middle ----
+        self.surface.blit(self.image, (x + 16, y))  # bottom-right
+
+
+class TetraS(Block):
+    def __init__(self, name, surface):  # 0|1|1
+        super().__init__(name, surface)  # 1|1|0
+        self.image = a.pink_b
+
+    def render(self, x, y):
+        self.surface.blit(self.image, (x, y - 16))  # top-middle
+        self.surface.blit(self.image, (x + 16, y - 16))  # top-right
+        self.surface.blit(self.image, (x - 16, y))  # bottom-left
+        self.surface.blit(self.image, (x, y))  # bottom-middle ----
+
+
+class TetraZ(Block):
+    def __init__(self, name, surface):  # 1|1|0
+        super().__init__(name, surface)  # 0|1|1
+        self.image = a.blue_b
+
+    def render(self, x, y):
+        self.surface.blit(self.image, (x - 16, y - 16))  # top-left
+        self.surface.blit(self.image, (x, y - 16))  # top-middle
+        self.surface.blit(self.image, (x, y))  # bottom-middle ----
+        self.surface.blit(self.image, (x + 16, y))  # bottom-right
+
+
+class TetraI(Block):
+    def __init__(self, name, surface):  # 1|1|1|1
+        super().__init__(name, surface)
+        self.image = a.teal_b
+
+    def render(self, x, y):
+        self.surface.blit(self.image, (x - 32, y))  # left
+        self.surface.blit(self.image, (x - 16, y))  # left-middle
+        self.surface.blit(self.image, (x, y))  # right-middle ----
+        self.surface.blit(self.image, (x + 16, y))  # right
