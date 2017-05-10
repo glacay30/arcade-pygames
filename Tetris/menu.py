@@ -1,16 +1,20 @@
 import pygame
-import assets as a
+
+color_white = (255, 255, 255)
+color_black = (0, 0, 0)
+color_yellow = (255, 255, 0)
 
 
 class Menu:
-    def __init__(self, surface, message_func):
+    def __init__(self, surface, window_dimensions, message_func):
         self.surface = surface
         self.message = message_func
+        self.window_dimensions = window_dimensions
         self.current_state = 'main'  # main, how
         self.buttons = {
-            'play': [a.color_yellow, self.func1],
-            'how': [a.color_white, self.func2],
-            'quit': [a.color_white, self.func3],
+            'play': [color_yellow, self.func1],
+            'how': [color_white, self.func2],
+            'quit': [color_white, self.func3],
         }
         self.buttons_list = ['play', 'how', 'quit']
         self.current_selection = 0
@@ -40,8 +44,8 @@ class Menu:
                 self.current_selection -= 1
 
         for button in self.buttons_list:
-            self.buttons[button][0] = a.color_white
-        self.buttons[self.buttons_list[self.current_selection]][0] = a.color_yellow
+            self.buttons[button][0] = color_white
+        self.buttons[self.buttons_list[self.current_selection]][0] = color_yellow
 
     def activate(self):
         self.buttons[self.buttons_list[self.current_selection]][1]()
@@ -51,15 +55,15 @@ class Menu:
 
     def render(self):
         if 'main' in self.current_state:
-            self.surface.fill(a.color_black)
-            self.message('Tetris', pos=[60, 10], color=a.color_white, size=60)
-            self.message('Play Game', pos=[50, 80], color=self.buttons['play'][0])
-            self.message('How to Play', pos=[43, 110], color=self.buttons['how'][0])
-            self.message('Quit', pos=[90, 140], color=self.buttons['quit'][0])
+            self.surface.fill(color_black)
+            self.message('Tetris', 4, (255, 255, 255), center='x', offset_arg=(0, 1))
+            self.message('Play Game', 2, self.buttons['play'][0], center='x', offset_arg=(0, 6))
+            self.message('How to Play', 2, self.buttons['how'][0], center='x', offset_arg=(0, 8))
+            self.message('Quit', 2, self.buttons['quit'][0], center='x', offset_arg=(0, 10))
         elif 'how' in self.current_state:
-            self.surface.fill(a.color_black)
-            self.message('A, S, D to move block', pos=[10, 10], color=a.color_white, size=25)
-            self.message('LEFT and RIGHT to rotate', pos=[10, 40], color=a.color_white, size=25)
-            self.message('SPACE to drop block', pos=[10, 70], color=a.color_white, size=25)
-            self.message('T to pause game', pos=[10, 100], color=a.color_white, size=25)
-            self.message('ESCAPE to return to menu', pos=[10, 150], color=a.color_white, size=25)
+            self.surface.fill(color_black)
+            self.message('LEFT and RIGHT to move', 2, (255, 255, 255), center='x', offset_arg=(0, 2))
+            self.message('UP to rotate', 2, (255, 255, 255), center='x', offset_arg=(0, 5))
+            self.message('DOWN to drop', 2, (255, 255, 255), center='x', offset_arg=(0, 8))
+            self.message('ENTER to pause game', 2, (255, 255, 255), center='x', offset_arg=(0, 11))
+            self.message('Press ESCAPE to return to menu', 2, (255, 255, 255), center='x', offset_arg=(0, 16))

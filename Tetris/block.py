@@ -1,40 +1,44 @@
-import assets as a
 from random import randint
+import pygame
+
+img_red = pygame.image.load_extended('images/red.png')
+img_orange = pygame.image.load_extended('images/orange.png')
+img_yellow = pygame.image.load_extended('images/yellow.png')
+img_green = pygame.image.load_extended('images/green.png')
+img_blue = pygame.image.load_extended('images/blue.png')
+img_teal = pygame.image.load_extended('images/teal.png')
+img_pink = pygame.image.load_extended('images/pink.png')
 
 
 class Block:
-    def __init__(self, surface, standard_pos, pos, offset, block_type, rotation):
+    def __init__(self, surface, scale, offset, pos, block_type, rotation):
         self.block_info = {
-            't': (['08-888', '08-088-08', '-888-08', '08-88-08'], a.img_red),
-            's': (['088-88', '8-88-08'], a.img_pink),
-            'z': (['88-088', '08-88-8'], a.img_blue),
-            'o': (['88-88'], a.img_yellow),
-            'i': (['8-8-8-8', '8888'], a.img_teal),
-            'j': (['08-08-88', '8-888', '088-08-08', '-888-008'], a.img_green),
-            'l': (['08-08-088', '-888-8', '88-08-08', '008-888'], a.img_orange)
+            't': (['08-888', '08-088-08', '-888-08', '08-88-08'], pygame.transform.scale(img_red, (scale, scale))),
+            's': (['088-88', '8-88-08'], pygame.transform.scale(img_pink, (scale, scale))),
+            'z': (['88-088', '08-88-8'], pygame.transform.scale(img_blue, (scale, scale))),
+            'o': (['88-88'], pygame.transform.scale(img_yellow, (scale, scale))),
+            'i': (['8-8-8-8', '8888'], pygame.transform.scale(img_teal, (scale, scale))),
+            'j': (['08-08-88', '8-888', '088-08-08', '-888-008'], pygame.transform.scale(img_green, (scale, scale))),
+            'l': (['08-08-088', '-888-8', '88-08-08', '008-888'], pygame.transform.scale(img_orange, (scale, scale))),
         }
         self.surface = surface
+        self.pos = list(pos)
+        self.standard_pos = pos
         self.block_type = block_type
         self.block_rotation = rotation
+        self.offset = offset
+
         self.max_rotations = len(self.block_info[self.block_type][0])
         self.block_forms = self.block_info[self.block_type][0]
-        self.block_color = self.block_info[self.block_type][1]
-        self.offset = offset
-        self.standard_pos = (standard_pos[0] + offset[0], standard_pos[1] + offset[1])
-        self.pos = [pos[0] + offset[0], pos[1] + offset[1]]
-        self.size = 16
+        self.block_image = self.block_info[self.block_type][1]
 
-    # def create_block(self, shape, pos, grid):
-    #     cells = self.unpack(shape, pos)
-    #     for cell in cells:
-    #         grid.grid_data[tuple(cell)] = 1
-    #         self.surface.blit(a.img_blank, (cell[0] * self.size, cell[1] * self.size))
+        self.scale = scale
 
     def render_block(self):
-        base = self.block_forms[self.block_rotation]
-        cells = self.unpack(base, tuple(self.pos))
+        cells = self.unpack(self.block_forms[self.block_rotation], self.pos)
         for cell in cells:
-            self.surface.blit(self.block_color, (cell[0] * self.size, cell[1] * self.size))
+            self.surface.blit(self.block_image, (cell[0] * self.scale + self.offset[0],
+                                                 cell[1] * self.scale + self.offset[1]))
 
     def game_over(self, grid):
         cells = self.unpack(self.block_forms[self.block_rotation], self.pos)
@@ -47,7 +51,7 @@ class Block:
 
     @staticmethod
     def unpack(base, pos):
-        """Takes the pattern '08-88' and returns [[coord1],[coord2]...]
+        """Takes the pattern '08-88' and returns [[x1, y1], [x2, y2]...]
         
             Keyword Arguments:
             base -- a string pattern; e.g. '888-808-888'
@@ -135,6 +139,11 @@ class Stone(Block):
 
     def new_block(self, grid):
         cells = self.unpack(self.block_forms[self.block_rotation], self.pos)
-        grid.update_grid(cells, self.block_color)
-        self.__init__(self.surface, self.standard_pos, list(self.standard_pos),
-                      (0, 0), ['t', 's', 'z', 'o', 'i', 'j', 'l'][randint(0, 6)], 0)
+        grid.update_grid(cells, self.block_image)
+        self.__init__(surface=self.surface,
+                      scale=self.scale,
+                      offset=self.offset,
+                      pos=self.standard_pos,
+                      block_type=['t', 's', 'z', 'o', 'i', 'j', 'l'][randint(0, 6)],
+                      rotation=0
+                      )
