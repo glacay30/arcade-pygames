@@ -1,101 +1,152 @@
-import assets as a
+from random import randint
+import pygame
+
+img_red = pygame.image.load_extended('images/red.png')
+img_orange = pygame.image.load_extended('images/orange.png')
+img_yellow = pygame.image.load_extended('images/yellow.png')
+img_green = pygame.image.load_extended('images/green.png')
+img_blue = pygame.image.load_extended('images/blue.png')
+img_teal = pygame.image.load_extended('images/teal.png')
+img_pink = pygame.image.load_extended('images/pink.png')
 
 
 class Block:
-    def __init__(self, surface, pos, block_type='t', rotation=0):
+    def __init__(self, surface, scale, offset, pos, block_type, rotation):
+        self.block_info = {
+            't': (['08-888', '08-088-08', '-888-08', '08-88-08'], pygame.transform.scale(img_red, (scale, scale))),
+            's': (['088-88', '8-88-08'], pygame.transform.scale(img_pink, (scale, scale))),
+            'z': (['88-088', '08-88-8'], pygame.transform.scale(img_blue, (scale, scale))),
+            'o': (['88-88'], pygame.transform.scale(img_yellow, (scale, scale))),
+            'i': (['08-08-08-08', '8888'], pygame.transform.scale(img_teal, (scale, scale))),
+            'j': (['08-08-88', '8-888', '088-08-08', '-888-008'], pygame.transform.scale(img_green, (scale, scale))),
+            'l': (['08-08-088', '-888-8', '88-08-08', '008-888'], pygame.transform.scale(img_orange, (scale, scale))),
+        }
         self.surface = surface
+        self.pos = list(pos)
+        self.standard_pos = pos
         self.block_type = block_type
         self.block_rotation = rotation
-        self.pos = pos
-        self.size = 16
-        self.block_info = {
-            't': (['08-888', '08-088-08', '-888-08', '08-88-08'], a.img_red),
-            's': (['088-88', '8-88-08'], a.img_pink),
-            'z': (['88-088', '08-88-8'], a.img_blue),
-            'o': (['88-88'], a.img_yellow),
-            'i': (['8-8-8-8', '8888'], a.img_teal),
-            'j': (['08-08-88', '8-888', '088-08-08', '-888-008'], a.img_green),
-            'l': (['08-08-088', '-888-8', '88-08-08', '008-888'], a.img_orange)
-        }
-        self.time_start = 0
-        self.time_stop = 10
-        self.time_step = 1
+        self.offset = offset
 
-    def time_tick(self):
-        if self.time_start == self.time_stop:
-            self.time_start = 0
-            return True
-        else:
-            self.time_start += self.time_step
+        self.max_rotations = len(self.block_info[self.block_type][0])
+        self.block_forms = self.block_info[self.block_type][0]
+        self.block_image = self.block_info[self.block_type][1]
+
+        self.scale = scale
+
+        self.held = False
 
     def render_block(self):
-        base = self.block_info[self.block_type][0][self.block_rotation]
-        color = self.block_info[self.block_type][1]
-        unpacked = self.unpack(base, tuple(self.pos))
-        for coords in unpacked:
-            self.surface.blit(color, (coords[0] * self.size, coords[1] * self.size))
+        cells = self.unpack(self.block_forms[self.block_rotation], self.pos)
+        for cell in cells:
+            self.surface.blit(self.block_image, (cell[0] * self.scale + self.offset[0],
+                                                 cell[1] * self.scale + self.offset[1]))
 
-    # takes the pattern '08-88' and returns [[coord1],[coord2]...]
+    def game_over(self, grid):
+        cells = self.unpack(self.block_forms[self.block_rotation], self.pos)
+        for cell in cells:
+            if grid.grid_data[tuple(cell)][0] == 1:
+                return True
+            else:
+                continue
+        return False
+
     @staticmethod
-    def unpack(base, coordinate):
+    def unpack(base, pos):
+        """Takes the pattern '08-88' and returns [[x1, y1], [x2, y2],...]
+        
+            Keyword Arguments:
+            base -- a string pattern; e.g. '888-808-888'
+                8 means a block
+                0 means a space
+                - means a next line down
+            pos -- grid coordinate of block
+        """
         x, y, complete = 0, 0, []
         for char in base:
             if char in '0':
                 x += 1
             elif char in '8':
-                complete.append([coordinate[0] + x, coordinate[1] + y])
+                complete.append([pos[0] + x, pos[1] + y])
                 x += 1
             elif char in '-':
                 x = 0
                 y += 1
         return complete
 
-    # call this and render every possible block on the screen
-    @classmethod
-    def render_all(cls, surface):
-        b1 = cls(surface, [0, 3], 't', 0)
-        b2 = cls(surface, [0, 8], 't', 1)
-        b3 = cls(surface, [0, 13], 't', 2)
-        b4 = cls(surface, [0, 18], 't', 3)
-        b5 = cls(surface, [5, 3], 's', 0)
-        b6 = cls(surface, [5, 8], 's', 1)
-        b7 = cls(surface, [10, 3], 'z', 0)
-        b8 = cls(surface, [10, 8], 'z', 1)
-        b9 = cls(surface, [15, 3], 'o', 0)
-        b10 = cls(surface, [20, 3], 'i', 0)
-        b11 = cls(surface, [20, 8], 'i', 1)
-        b12 = cls(surface, [25, 3], 'j', 0)
-        b13 = cls(surface, [25, 8], 'j', 1)
-        b14 = cls(surface, [25, 13], 'j', 2)
-        b15 = cls(surface, [25, 18], 'j', 3)
-        b16 = cls(surface, [30, 3], 'l', 0)
-        b17 = cls(surface, [30, 8], 'l', 1)
-        b18 = cls(surface, [30, 13], 'l', 2)
-        b19 = cls(surface, [30, 18], 'l', 3)
-        for block in ['b{}'.format(i) for i in range(1, 20)]:
-            locals()[block].render_block()
-
 
 class Stone(Block):
-    def move_right(self):
-        self.pos[0] += 1
+    def move(self, direction, grid, reset='disable'):
+        """Move block by one space unless something blocks it"""
+        change = {'down': (0, 1), 'left': (-1, 0), 'right': (1, 0)}
+        check_list = []
 
-    def move_left(self):
-        self.pos[0] -= 1
-
-    def move_down(self):
-        self.pos[1] += 1
-
-    def rotate_ccw(self):
-        # cycle through the rotations in the left direction [0 <- n]
-        if self.block_rotation == 0:
-            self.block_rotation = len(self.block_info[self.block_type][0]) - 1
+        for cell in self.unpack(self.block_forms[self.block_rotation], self.pos):
+            x, y = cell
+            try:
+                if grid.grid_data[(x + change[direction][0], y + change[direction][1])][0] == 1:
+                    check_list.append('blocked')
+            except KeyError:
+                check_list.append('blocked')
+        if 'blocked' not in check_list:
+            self.pos[0] += change[direction][0]
+            self.pos[1] += change[direction][1]
         else:
-            self.block_rotation -= 1
+            if 'enable' in reset:
+                self.new_block(grid)
 
-    def rotate_cw(self):
-        # cycle through the rotations in the right direction [0 -> n]
-        if self.block_rotation == len(self.block_info[self.block_type][0]) - 1:
-            self.block_rotation = 0
-        else:
-            self.block_rotation += 1
+    def drop(self, grid):
+        """Block moves down until it is blocked"""
+        current_y = 0
+        check_list = []
+        while True:
+            for cell in self.unpack(self.block_forms[self.block_rotation], self.pos):
+                x, y = cell
+                try:
+                    if grid.grid_data[(x, y + 1 + current_y)][0] == 1:
+                        check_list.append('blocked')
+                except KeyError:
+                    check_list.append('blocked')
+            if 'blocked' in check_list:
+                self.pos[1] += current_y
+                self.new_block(grid)
+                break
+            else:
+                current_y += 1
+
+    def rotate(self, direction, grid):
+        """Check if the direction of the rotation is clear and rotate if it is
+            Keyword Arguments:
+                direction -- either 'cw' or 'ccw', clockwise or counter-clockwise
+                grid -- self.grid to reference from
+        """
+        new_rotation = None
+        check_list = []
+        if direction in 'cw' and self.block_rotation == self.max_rotations - 1:
+            new_rotation = 0
+        elif direction in 'cw':
+            new_rotation = self.block_rotation + 1
+        elif direction in 'ccw' and self.block_rotation == 0:
+            new_rotation = self.max_rotations - 1
+        elif direction in 'ccw':
+            new_rotation = self.block_rotation - 1
+        cells = self.unpack(self.block_forms[new_rotation], self.pos)
+        for cell in cells:
+            try:
+                if grid.grid_data[tuple(cell)][0] == 1:
+                    check_list.append('blocked')
+            except KeyError:
+                check_list.append('blocked')
+        if 'blocked' not in check_list:
+            self.block_rotation = new_rotation
+
+    def new_block(self, grid):
+        cells = self.unpack(self.block_forms[self.block_rotation], self.pos)
+        grid.update_grid(cells, self.block_image)
+        self.__init__(surface=self.surface,
+                      scale=self.scale,
+                      offset=self.offset,
+                      pos=self.standard_pos,
+                      block_type=['t', 's', 'z', 'o', 'i', 'j', 'l'][randint(0, 6)],
+                      rotation=0,
+                      )
