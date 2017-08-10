@@ -15,36 +15,29 @@ class Grid:
                           for x in range(self.grid_w)
                           for y in range(self.grid_h)}
 
-    def line_check(self):
+    def line_clear(self) -> bool:
         """Check if a line is made"""
-        for y in range(self.grid_h - 1, -1, -1):  # start from the bottom row to the top
+        for y in range(0, self.grid_h):
             streak = 0
             for x in range(self.grid_w):
                 if self.grid_data[(x, y)][0] == 1:
                     streak += 1
             if streak == self.grid_w:
-                self.line_clear(y)
-                self.line_clean(y)
+                """Clear the row where the line is"""
+                for x in range(self.grid_w):
+                    self.grid_data[(x, y)] = (0, self.img_grid)
+
+                """Move every block above the cleared line one down"""
+                new_cells = {}
+                for y in range(y):
+                    for x in range(self.grid_w):
+                        new_cells[(x, y + 1)] = self.grid_data[(x, y)]
+                for k, v in new_cells.items():
+                    self.grid_data[k] = v
                 return True
             else:
                 continue
         return False
-
-    def line_clear(self, row_to_clear):
-        """Clear the line that was made"""
-        y = row_to_clear
-        for x in range(self.grid_w):
-            self.grid_data[(x, y)] = (0, self.img_grid)
-
-    def line_clean(self, row_to_stop):
-        """Move every block above the cleared line one below"""
-        new_cells = {}
-
-        for y in range(row_to_stop):
-            for x in range(self.grid_w):
-                new_cells[(x, y + 1)] = self.grid_data[(x, y)]
-        for k, v in new_cells.items():
-            self.grid_data[k] = v
 
     def update_grid(self, cells, color):
         for cell in cells:

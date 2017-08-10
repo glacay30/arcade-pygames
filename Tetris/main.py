@@ -6,6 +6,8 @@ import pygame
 
 class TetrisApplication:
     def __init__(self, initial_state='menu'):
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
+        pygame.mixer.init()
         pygame.init()
         self.clock = pygame.time.Clock()
         self.time_start = 0
@@ -21,6 +23,7 @@ class TetrisApplication:
 
         pygame.display.set_caption('Tetris')
         pygame.display.set_icon(pygame.image.load_extended('images/icon.gif'))
+        pygame.mouse.set_visible(False)
 
         self.state_current = initial_state  # total states: 'menu', 'game', 'pause', 'game over'
         self.score = 0
@@ -86,6 +89,8 @@ class TetrisApplication:
                         if event.key == pygame.K_RIGHT:
                             self.stone.move('right', self.grid)
                         if event.key == pygame.K_DOWN:
+                            self.stone.held = True
+                        if event.key == pygame.K_RCTRL:
                             self.stone.drop(self.grid)
                         if event.key == pygame.K_UP:
                             self.stone.rotate('cw', self.grid)
@@ -94,12 +99,18 @@ class TetrisApplication:
                         elif event.key == pygame.K_KP_ENTER:
                             self.state_current = 'pause'
 
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_DOWN:
+                            self.stone.held = False
+
             elif self.state_current in 'pause':
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         self.state_current = 'game'
                     elif event.key == pygame.K_KP_ENTER:
                         self.state_current = 'game'
+                    elif event.key == pygame.K_ESCAPE:
+                        self.state_current = 'menu'
 
             elif self.state_current in 'game over':
                 if event.type == pygame.KEYDOWN:
@@ -121,8 +132,6 @@ class TetrisApplication:
                 self.state_game()
             elif self.state_current in 'pause':
                 self.state_pause()
-            elif self.state_current in 'game over':
-                self.state_game_over()
             pygame.display.update()
             self.clock.tick(self.time_stop)
 
@@ -137,23 +146,26 @@ class TetrisApplication:
         self.stone.render_block()
         self.message(str(self.score), 3, (255, 255, 255), center='y', offset_arg=(2, 0))
 
-        if self.time_tick():
+        if self.stone.held:
             self.stone.move('down', self.grid, reset='enable')
+            self.time_start = 0
+        else:
+            if self.time_tick():
+                self.stone.move('down', self.grid, reset='enable')
+
         if self.stone.game_over(self.grid):
             self.state_current = 'game over'
+            self.message('Game Over!', 3, (200, 200, 200), center='x', offset_arg=(0, 1))
+            self.message('SPACE to reset', 2, (200, 200, 200), center='x', offset_arg=(0, 5))
+            self.message('ESCAPE to go to menu', 2, (200, 200, 200), center='x', offset_arg=(0, 7))
+            self.message('BACKSPACE to exit', 2, (200, 200, 200), center='x', offset_arg=(0, 9))
 
-        if self.grid.line_check():
+        while self.grid.line_clear():
             self.score += 1
             self.time_step += 0.2
 
     def state_pause(self):
         self.message("Paused!", 1, (255, 255, 255), center='xy')
-
-    def state_game_over(self):
-        self.message('Game Over!', 3, (200, 200, 200), center='x', offset_arg=(0, 1))
-        self.message('SPACE to reset', 2, (200, 200, 200), center='x', offset_arg=(0, 5))
-        self.message('ESCAPE to go to menu', 2, (200, 200, 200), center='x', offset_arg=(0, 7))
-        self.message('BACKSPACE to exit', 2, (200, 200, 200), center='x', offset_arg=(0, 9))
 
     def time_tick(self):
         if self.time_start >= self.time_stop:

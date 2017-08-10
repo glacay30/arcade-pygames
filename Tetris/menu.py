@@ -66,4 +66,4 @@ class Menu:
             self.message('UP to rotate', 2, (255, 255, 255), center='x', offset_arg=(0, 5))
             self.message('DOWN to drop', 2, (255, 255, 255), center='x', offset_arg=(0, 8))
             self.message('ENTER to pause game', 2, (255, 255, 255), center='x', offset_arg=(0, 11))
-            self.message('Press ESCAPE to return to menu', 2, (255, 255, 255), center='x', offset_arg=(0, 16))
+            self.message('Press ESCAPE to return to menu', 1, (255, 255, 255), center='x', offset_arg=(0, 26))

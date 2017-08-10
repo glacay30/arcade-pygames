@@ -17,7 +17,7 @@ class Block:
             's': (['088-88', '8-88-08'], pygame.transform.scale(img_pink, (scale, scale))),
             'z': (['88-088', '08-88-8'], pygame.transform.scale(img_blue, (scale, scale))),
             'o': (['88-88'], pygame.transform.scale(img_yellow, (scale, scale))),
-            'i': (['8-8-8-8', '8888'], pygame.transform.scale(img_teal, (scale, scale))),
+            'i': (['08-08-08-08', '8888'], pygame.transform.scale(img_teal, (scale, scale))),
             'j': (['08-08-88', '8-888', '088-08-08', '-888-008'], pygame.transform.scale(img_green, (scale, scale))),
             'l': (['08-08-088', '-888-8', '88-08-08', '008-888'], pygame.transform.scale(img_orange, (scale, scale))),
         }
@@ -33,6 +33,8 @@ class Block:
         self.block_image = self.block_info[self.block_type][1]
 
         self.scale = scale
+
+        self.held = False
 
     def render_block(self):
         cells = self.unpack(self.block_forms[self.block_rotation], self.pos)
@@ -51,14 +53,14 @@ class Block:
 
     @staticmethod
     def unpack(base, pos):
-        """Takes the pattern '08-88' and returns [[x1, y1], [x2, y2]...]
+        """Takes the pattern '08-88' and returns [[x1, y1], [x2, y2],...]
         
             Keyword Arguments:
             base -- a string pattern; e.g. '888-808-888'
                 8 means a block
                 0 means a space
                 - means a next line down
-            pos -- position to base rest of block creation on
+            pos -- grid coordinate of block
         """
         x, y, complete = 0, 0, []
         for char in base:
@@ -78,6 +80,7 @@ class Stone(Block):
         """Move block by one space unless something blocks it"""
         change = {'down': (0, 1), 'left': (-1, 0), 'right': (1, 0)}
         check_list = []
+
         for cell in self.unpack(self.block_forms[self.block_rotation], self.pos):
             x, y = cell
             try:
@@ -145,5 +148,5 @@ class Stone(Block):
                       offset=self.offset,
                       pos=self.standard_pos,
                       block_type=['t', 's', 'z', 'o', 'i', 'j', 'l'][randint(0, 6)],
-                      rotation=0
+                      rotation=0,
                       )

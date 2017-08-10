@@ -11,6 +11,7 @@ Each game is independent from each other and has all its own files in its folder
 * Pong
 * Slither
 * Tetris
+* Breakout
 
 ### Current:
 * None

@@ -16,10 +16,10 @@ pygame.display.set_caption('Pong')
 f_size = 30
 font = pygame.font.SysFont(None, f_size)
 
-paddle_img = pygame.image.load('paddle.png')
+paddle_img = pygame.image.load_extended('paddle.png')
 paddle_rect_LEFT = paddle_img.get_rect().move([25, int(height / 2)])
 paddle_rect_RIGHT = paddle_img.get_rect().move([width - 26, int(height / 2)])
-ball_img = pygame.image.load('ball.png')
+ball_img = pygame.image.load_extended('ball.png')
 ball_rect = ball_img.get_rect().move([int(width / 2) - 70, int(height / 2) + 10])
 
 
