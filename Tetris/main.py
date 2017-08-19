@@ -10,7 +10,7 @@ class TetrisApplication:
         pygame.mixer.init()
         pygame.init()
         self.clock = pygame.time.Clock()
-        self.time_start = 0
+        self.time_current = 0
         self.time_stop = 60
         self.time_step = 1
 
@@ -85,11 +85,27 @@ class TetrisApplication:
                             self.state_current = 'menu'
                             self.__init__('menu')
                         if event.key == pygame.K_LEFT:
-                            self.stone.move('left', self.grid)
-                        if event.key == pygame.K_RIGHT:
-                            self.stone.move('right', self.grid)
-                        if event.key == pygame.K_DOWN:
-                            self.stone.held = True
+                            if 'left' not in self.stone.held:
+                                if self.stone.held:  # something is in the list
+                                    self.stone.first_time = True
+                                    self.stone.held_count = 0
+                                    self.stone.truly_held = False
+                                self.stone.held.insert(0, 'left')
+                        elif event.key == pygame.K_RIGHT:
+                            if 'right' not in self.stone.held:
+                                if self.stone.held:  # something is in the list
+                                    self.stone.first_time = True
+                                    self.stone.held_count = 0
+                                    self.stone.truly_held = False
+                                self.stone.held.insert(0, 'right')
+                        elif event.key == pygame.K_DOWN:
+                            if 'down' not in self.stone.held:
+                                if self.stone.held:  # something is in the list
+                                    self.stone.first_time = True
+                                    self.stone.held_count = 0
+                                    self.stone.truly_held = False
+                                self.stone.held.insert(0, 'down')
+
                         if event.key == pygame.K_RCTRL:
                             self.stone.drop(self.grid)
                         if event.key == pygame.K_UP:
@@ -100,8 +116,24 @@ class TetrisApplication:
                             self.state_current = 'pause'
 
                     if event.type == pygame.KEYUP:
-                        if event.key == pygame.K_DOWN:
-                            self.stone.held = False
+                        try:
+                            if event.key == pygame.K_LEFT:
+                                self.stone.held.remove('left')
+                                self.stone.first_time = True
+                                self.stone.held_count = 0
+                                self.stone.truly_held = False
+                            elif event.key == pygame.K_RIGHT:
+                                self.stone.held.remove('right')
+                                self.stone.first_time = True
+                                self.stone.held_count = 0
+                                self.stone.truly_held = False
+                            elif event.key == pygame.K_DOWN:
+                                self.stone.held.remove('down')
+                                self.stone.first_time = True
+                                self.stone.held_count = 0
+                                self.stone.truly_held = False
+                        except ValueError:
+                            pass
 
             elif self.state_current in 'pause':
                 if event.type == pygame.KEYDOWN:
@@ -118,9 +150,6 @@ class TetrisApplication:
                         self.__init__('game')
                     if event.key == pygame.K_ESCAPE:
                         self.__init__('menu')
-                    if event.key == pygame.K_BACKSPACE:
-                        pygame.quit()
-                        quit()
 
     def mainloop(self):
         while True:
@@ -147,18 +176,26 @@ class TetrisApplication:
         self.message(str(self.score), 3, (255, 255, 255), center='y', offset_arg=(2, 0))
 
         if self.stone.held:
-            self.stone.move('down', self.grid, reset='enable')
-            self.time_start = 0
-        else:
-            if self.time_tick():
-                self.stone.move('down', self.grid, reset='enable')
+            if not self.stone.truly_held:
+                if self.stone.count():
+                    self.stone.truly_held = True
+                elif self.stone.first_time:
+                    self.stone.move(self.stone.held[0], self.grid)
+                    self.stone.first_time = False
+            if self.stone.truly_held:
+                self.stone.move(self.stone.held[0], self.grid)
+            if 'down' in self.stone.held:
+                self.time_current = 0
+
+        if self.time_tick():
+            if 'down' not in self.stone.held:
+                self.stone.move('down', self.grid)
 
         if self.stone.game_over(self.grid):
             self.state_current = 'game over'
             self.message('Game Over!', 3, (200, 200, 200), center='x', offset_arg=(0, 1))
             self.message('SPACE to reset', 2, (200, 200, 200), center='x', offset_arg=(0, 5))
             self.message('ESCAPE to go to menu', 2, (200, 200, 200), center='x', offset_arg=(0, 7))
-            self.message('BACKSPACE to exit', 2, (200, 200, 200), center='x', offset_arg=(0, 9))
 
         while self.grid.line_clear():
             self.score += 1
@@ -168,11 +205,11 @@ class TetrisApplication:
         self.message("Paused!", 1, (255, 255, 255), center='xy')
 
     def time_tick(self):
-        if self.time_start >= self.time_stop:
-            self.time_start = 0
+        if self.time_current >= self.time_stop:
+            self.time_current = 0
             return True
         else:
-            self.time_start += int(self.time_step)
+            self.time_current += int(self.time_step)
 
     def message(self, msg, font_size, font_color, pos=(0, 0), center='', offset_arg=(0, 0)):
 
