@@ -34,7 +34,11 @@ class Block:
 
         self.scale = scale
 
-        self.held = False
+        self.held = []
+        self.held_count = 0
+        self.held_end = 15
+        self.truly_held = False
+        self.first_time = True
 
     def render_block(self):
         cells = self.unpack(self.block_forms[self.block_rotation], self.pos)
@@ -76,24 +80,31 @@ class Block:
 
 
 class Stone(Block):
-    def move(self, direction, grid, reset='disable'):
-        """Move block by one space unless something blocks it"""
+    def move(self, direction, grid):
         change = {'down': (0, 1), 'left': (-1, 0), 'right': (1, 0)}
-        check_list = []
+        blocked = False
 
         for cell in self.unpack(self.block_forms[self.block_rotation], self.pos):
-            x, y = cell
             try:
-                if grid.grid_data[(x + change[direction][0], y + change[direction][1])][0] == 1:
-                    check_list.append('blocked')
+                if grid.grid_data[(cell[0] + change[direction][0], cell[1] + change[direction][1])][0] == 1:
+                    blocked = True
+                    break
             except KeyError:
-                check_list.append('blocked')
-        if 'blocked' not in check_list:
-            self.pos[0] += change[direction][0]
-            self.pos[1] += change[direction][1]
+                blocked = True
+                break
+
+        if not blocked:
+            self.pos = [self.pos[0] + change[direction][0], self.pos[1] + change[direction][1]]
         else:
-            if 'enable' in reset:
+            if 'down' in direction:
                 self.new_block(grid)
+
+    def count(self):
+        self.held_count += 1
+        if self.held_count >= self.held_end:
+            self.held_count = 0
+            return True
+        return False
 
     def drop(self, grid):
         """Block moves down until it is blocked"""
